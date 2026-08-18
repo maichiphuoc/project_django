@@ -1,0 +1,54 @@
+<header class="header">
+
+    <div class="header-container">
+
+        <div class="logo">
+            <span class="logo-text">E-Shopper</span>
+        </div>
+
+        <div class="menu">
+
+            <a href="#">
+                <span class="icon">♟</span>
+                Account
+            </a>
+
+            <a href="#">
+                <span class="icon">★</span>
+                Wishlist
+            </a>
+
+            <a href="#">
+                <span class="icon">✥</span>
+                Checkout
+            </a>
+
+            <a href="#">
+                <span class="icon">🛒</span>
+                Cart
+            </a>
+
+            {% if user.is_authenticated %}
+
+            <a href="#">
+                Xin chào: {{user.username}} | id:{{user.id}}
+            </a>
+
+            <a href="{% url 'logout' %}">
+                Logout
+            </a>
+
+            {% else %}
+
+            <a href="{% url 'login' %}">
+                <span class="icon">🔒</span>
+                Login
+            </a>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</header>

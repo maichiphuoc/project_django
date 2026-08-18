@@ -1,0 +1,49 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>E-Shopper</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    {% block css %}
+    {% endblock %}
+
+</head>
+
+<body>
+
+    {% include 'header.html' %}
+
+    <div class="main-container">
+
+        <aside class="menuLeft">
+            {% include 'menuLeft.html' %}
+        </aside>
+
+        <main class="content">
+
+            {% block content %}
+            {% endblock %}
+
+            <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+
+            <!-- JAVASCRIPT CỦA TRANG -->
+            {% block rateJs %}
+            {% endblock %}
+
+        </main>
+
+    </div>
+
+    {% include 'footer.html' %}
+
+</body>
+
+</html>

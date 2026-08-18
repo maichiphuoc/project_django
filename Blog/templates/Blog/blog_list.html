@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Blog</h1>
+{% for blog in page_obj %}
+<div>
+    <h2>
+        <a href="{% url 'blog_detail' blog.id %}">
+            {{blog.title}}
+        </a>
+    </h2>
+    <p>
+        {{blog.content|truncatewords:30}}
+    </p>
+    <p>
+        {{blog.created_at}}
+    </p>
+</div>
+<hr>
+{% empty %}
+<p>Chưa có bài viết nào </p>
+{% endfor %}
+
+<!-- phân trang -->
+<div>
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number}}">
+            Previous
+        </a>
+    {% endif %}
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number}}">
+            Next
+        </a>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,343 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+<title>{{ blog.title }}</title>
+
+<article>
+
+    <h1>{{ blog.title }}</h1>
+
+    <p>
+        Ngày đăng: {{ blog.created_at }}
+    </p>
+
+    <p>
+        Nội dung: {{ blog.content }}
+    </p>
+
+</article>
+
+
+<hr>
+
+
+<!-- ========================= -->
+<!-- ĐÁNH GIÁ -->
+<!-- ========================= -->
+
+<div class="rating">
+
+    <div class="ratings">
+
+        {% for star in star_range %}
+
+            <span
+                class="ratings_stars {% if star <= user_rate %}ratings_over{% endif %}"
+                data-rate="{{ star }}"
+            >
+                ★
+            </span>
+
+        {% endfor %}
+
+    </div>
+
+
+    <div>
+
+        Điểm trung bình:
+
+        <span id="average-rate">
+            {{ average_rate }}
+        </span>
+
+        / 5
+
+    </div>
+
+</div>
+
+
+<hr>
+
+
+<!-- ========================= -->
+<!-- PREVIOUS / NEXT -->
+<!-- ========================= -->
+
+<div>
+
+    {% if previous_blog %}
+
+        <a href="{% url 'blog_detail' previous_blog.id %}">
+            ← Previous
+        </a>
+
+    {% endif %}
+
+
+    {% if next_blog %}
+
+        <a href="{% url 'blog_detail' next_blog.id %}">
+            Next →
+        </a>
+
+    {% endif %}
+
+
+    <br>
+
+
+    <a href="{% url 'blog_list' %}">
+        Quay lại blog
+    </a>
+
+</div>
+
+
+{% endblock %}
+
+
+<!-- ========================= -->
+<!-- RATE JAVASCRIPT -->
+<!-- ========================= -->
+
+{% block rateJs %}
+
+<script>
+
+$(document).ready(function () {
+
+    console.log("BLOG RATE JS ĐÃ CHẠY");
+
+
+    // ========================================
+    // HOVER SAO
+    // ========================================
+
+    $('.ratings_stars').hover(
+
+        function () {
+
+            $(this)
+                .prevAll('.ratings_stars')
+                .addBack()
+                .addClass('ratings_hover');
+
+        },
+
+        function () {
+
+            $('.ratings_stars')
+                .removeClass('ratings_hover');
+
+        }
+
+    );
+
+
+    // ========================================
+    // CLICK SAO
+    // ========================================
+
+    $('.ratings_stars').click(function () {
+
+        // ====================================
+        // KIỂM TRA LOGIN
+        // ====================================
+
+        const isAuthenticated =
+            "{{ user.is_authenticated }}" === "True";
+
+
+        if (!isAuthenticated) {
+
+            alert(
+                "Vui lòng đăng nhập để đánh giá!"
+            );
+
+            return;
+        }
+
+
+        // ====================================
+        // LẤY RATE
+        // ====================================
+
+        const rate = parseInt(
+            $(this).data('rate')
+        );
+
+
+        // ====================================
+        // LẤY BLOG ID
+        // ====================================
+
+        const blogId = "{{ blog.id }}";
+
+
+        console.log(
+            "Blog ID:",
+            blogId
+        );
+
+        console.log(
+            "Rate:",
+            rate
+        );
+
+
+        // ====================================
+        // TÔ SAO USER VỪA CHỌN
+        // ====================================
+
+        $('.ratings_stars')
+            .removeClass('ratings_over');
+
+
+        $(this)
+            .prevAll('.ratings_stars')
+            .addBack()
+            .addClass('ratings_over');
+
+
+        // ====================================
+        // AJAX
+        // ====================================
+
+        $.ajax({
+
+            type: 'POST',
+
+            url: "{% url 'blog_rate' %}",
+
+
+            data: {
+
+                rate: rate,
+
+                blog_id: blogId,
+
+                csrfmiddlewaretoken:
+                    "{{ csrf_token }}"
+
+            },
+
+
+            // =================================
+            // SUCCESS
+            // =================================
+
+            success: function (data) {
+
+                console.log(
+                    "Server trả về:",
+                    data
+                );
+
+
+                if (data.success) {
+
+
+                    // =========================
+                    // CẬP NHẬT ĐIỂM TRUNG BÌNH
+                    // =========================
+
+                    $('#average-rate').text(
+                        data.average_rate
+                    );
+
+
+                    // =========================
+                    // GIỮ NGUYÊN SAO USER CHỌN
+                    // =========================
+
+                    $('.ratings_stars')
+                        .removeClass(
+                            'ratings_over'
+                        );
+
+
+                    $('.ratings_stars').each(
+                        function () {
+
+                            const starRate =
+                                parseInt(
+                                    $(this).data('rate')
+                                );
+
+
+                            if (
+                                starRate <= rate
+                            ) {
+
+                                $(this)
+                                    .addClass(
+                                        'ratings_over'
+                                    );
+
+                            }
+
+                        }
+                    );
+
+
+                    alert(
+                        "Cảm ơn bạn đã đánh giá " +
+                        rate +
+                        " sao!"
+                    );
+
+
+                } else {
+
+                    alert(
+                        data.error ||
+                        "Có lỗi xảy ra!"
+                    );
+
+                }
+
+            },
+
+
+            // =================================
+            // ERROR
+            // =================================
+
+            error: function (xhr) {
+
+                console.log(
+                    "AJAX ERROR:",
+                    xhr
+                );
+
+
+                if (xhr.status === 401) {
+
+                    alert(
+                        "Vui lòng đăng nhập để đánh giá!"
+                    );
+
+                } else {
+
+                    alert(
+                        "Không thể lưu đánh giá!"
+                    );
+
+                }
+
+            }
+
+        });
+
+    });
+
+});
+
+</script>
+
+{% endblock %}

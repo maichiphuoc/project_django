@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Đăng ký</h2>
+
+<form method="POST" enctype="multipart/form-data">
+
+    {% csrf_token %}
+
+    <div>
+        <label>Username:</label>
+        {{ form.username }}
+        {{ form.username.errors }}
+    </div>
+
+    <div>
+        <label>Email:</label>
+        {{ form.email }}
+        {{ form.email.errors }}
+    </div>
+
+    <div>
+        <label>Password:</label>
+        {{ form.password }}
+        {{ form.password.errors }}
+    </div>
+
+    <div>
+        <label>Confirm password:</label>
+        {{ form.confirm_password }}
+        {{ form.confirm_password.errors }}
+    </div>
+
+    <div>
+        <label>Avatar:</label>
+        {{ form.avatar }}
+        {{ form.avatar.errors }}
+    </div>
+
+    <div>
+        <label>First name:</label>
+        {{ form.first_name }}
+        {{ form.first_name.errors }}
+    </div>
+
+    <div>
+        <label>Last name:</label>
+        {{ form.last_name }}
+        {{ form.last_name.errors }}
+    </div>
+
+    <div>
+        <label>Country:</label>
+        {{ form.id_country }}
+        {{ form.id_country.errors }}
+    </div>
+
+    {% if form.non_field_errors %}
+        {{ form.non_field_errors }}
+    {% endif %}
+
+    <button type="submit">
+        Đăng ký
+    </button>
+
+</form>
+
+{% endblock %}
