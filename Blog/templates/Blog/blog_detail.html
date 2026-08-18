@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block css %}
+<link rel="stylesheet" href="{% static 'Blog/css/custom.css' %}">
+{% endblock %}
 
 {% block content %}
 
@@ -32,7 +35,10 @@
         {% for star in star_range %}
 
             <span
-                class="ratings_stars {% if star <= user_rate %}ratings_over{% endif %}"
+                class="ratings_stars 
+                    {% if star <= average_star %}
+                    ratings_over
+                        {% endif %}"
                 data-rate="{{ star }}"
             >
                 ★
@@ -101,7 +107,6 @@
 
 $(document).ready(function () {
 
-    console.log("BLOG RATE JS ĐÃ CHẠY");
 
     // hover sao
 
@@ -144,26 +149,10 @@ $(document).ready(function () {
         }
 
 
-        // lay rate
-        const rate = parseInt(
-            $(this).data('rate')
-        );
-
-
-        // lấy blog id
+        // số sao user chọn
+        const rate =$(this).data('rate')
+        // id blog
         const blogId = "{{ blog.id }}";
-
-
-        console.log(
-            "Blog ID:",
-            blogId
-        );
-
-        console.log(
-            "Rate:",
-            rate
-        );
-
 
         // sao user vừa chọn
         $('.ratings_stars')
@@ -197,11 +186,6 @@ $(document).ready(function () {
             // success
             success: function (data) {
 
-                console.log(
-                    "Server trả về:",
-                    data
-                );
-
 
                 if (data.success) {
 
@@ -211,24 +195,21 @@ $(document).ready(function () {
                     );
 
 
-                    // giữ nguyên sao user chọn
+                    // xóa sao cũ
                     $('.ratings_stars')
                         .removeClass(
                             'ratings_over'
                         );
 
-
+                    // sao theo điểm tbinh mới
                     $('.ratings_stars').each(
                         function () {
 
-                            const starRate =
-                                parseInt(
-                                    $(this).data('rate')
-                                );
+                            const starRate =$(this).data('rate')
 
 
                             if (
-                                starRate <= rate
+                                starRate <= Math.round(data.average_rate)
                             ) {
 
                                 $(this)
@@ -259,32 +240,6 @@ $(document).ready(function () {
                 }
 
             },
-
-
-            // error
-            error: function (xhr) {
-
-                console.log(
-                    "AJAX ERROR:",
-                    xhr
-                );
-
-
-                if (xhr.status === 401) {
-
-                    alert(
-                        "Vui lòng đăng nhập để đánh giá!"
-                    );
-
-                } else {
-
-                    alert(
-                        "Không thể lưu đánh giá!"
-                    );
-
-                }
-
-            }
 
         });
 

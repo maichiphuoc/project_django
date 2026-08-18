@@ -1,0 +1,12 @@
+.ratings_stars {
+    cursor: pointer;
+    color: #ccc;
+}
+
+.ratings_stars.ratings_over {
+    color: red;
+}
+
+.ratings_stars.ratings_hover {
+    color: yellow;
+}

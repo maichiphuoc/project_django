@@ -51,8 +51,11 @@ def blog_detail(request, blog_id):
 
     average_rate = average_result['average'] or 0
 
-    # Round điểm trung bình
-    average_rate = round(average_rate)
+    # Điểm trung bình hiển thị
+    average_rate = round(average_rate, 1)
+
+    # Round điểm trung bình được tô
+    average_star = round(average_rate)
 
 
     # lấy điểm user đánh giá
@@ -81,6 +84,8 @@ def blog_detail(request, blog_id):
             'average_rate': average_rate,
 
             'user_rate': user_rate,
+
+            'average_star': average_star,
 
             'star_range': range(1, 6),
         }
