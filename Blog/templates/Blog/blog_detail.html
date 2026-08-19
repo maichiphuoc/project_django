@@ -62,6 +62,61 @@
     </div>
 
 </div>
+<div
+    id="comment-data"
+    data-authenticated="{{ user.is_authenticated|yesno:'true,false' }}"
+    data-comment-url="{% url 'blog_comment' %}"
+></div>
+<div class="commenting">
+    <form id="comment-form" >
+        {% csrf_token %}
+        <input type="hidden" id="blog_id" name="blog_id" value="{{blog.id}}">
+        <input type="hidden" id="parent_id" value="">
+        <textarea id="comment" placeholder="Viết bình luận"></textarea>
+        <button type="submit">Comment</button>
+
+    </form>
+</div>
+<div id="comments-list">
+    {% for cmt in comments %}
+    <div class="comment-item" id="comment-{{cmt.id}}">
+        <!-- comment cha -->
+         <div class="comment-parent">
+            <div class="comment-user">
+                <img src="{{cmt.author_image}}" width="50" height="50">
+                <strong>{{cmt.author_name}}</strong>
+            </div>
+            <div class="comment-content">
+                {{cmt.comment}}
+            </div>
+            <div class="comment-time">
+                {{cmt.created|date:"d/m/Y H:i"}}
+            </div>
+            <button type="button" class="reply-btn" data-id="{{cmt.id}}">
+                Reply
+            </button>
+         </div>
+         <!-- comment con -->
+         <div class="replies">
+            {% for reply in cmt.replies.all %}
+            <div class="comment-child" id="comment-{{reply.id}}">
+                <div class="comment-user">
+                    <img src="{{reply.author_image}}" width="40" height="40">
+                    <strong>{{reply.author_name}}</strong>
+                </div>
+                <div class="comment-content">
+                    {{reply.comment}}
+                </div>
+                <div class="comment-time">
+                    {{reply.created|date:"d/m/Y H:i"}}
+                </div>
+            </div>
+            {% endfor %}
+         </div>
+    </div>
+    {% endfor %}
+
+</div>
 
 
 <hr>
@@ -249,4 +304,7 @@ $(document).ready(function () {
 
 </script>
 
+{% endblock %}
+{% block commentJs %}
+<script src="{% static 'Blog/js/blog_comment.js' %}"></script>
 {% endblock %}

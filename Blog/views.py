@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Avg
 
-from .models import Blog, Rate
+from .models import Blog, Rate , Comments
 
 def blog_list(request):
 
@@ -57,6 +57,12 @@ def blog_detail(request, blog_id):
     # Round điểm trung bình được tô
     average_star = round(average_rate)
 
+    comments = Comments.objects.filter(
+        blog=blog,
+        level = 0,
+    ).prefetch_related('replies')
+
+
 
     # lấy điểm user đánh giá
 
@@ -88,6 +94,7 @@ def blog_detail(request, blog_id):
             'average_star': average_star,
 
             'star_range': range(1, 6),
+            'comments':comments
         }
     )
 
@@ -184,4 +191,78 @@ def blog_rate(request):
         # Điểm trung bình
         'average_rate': average_rate
 
+    })
+def blog_comment(request):
+    if request.method != 'POST':
+        return JsonResponse({
+            'success':False,
+            'error':'Invalid request'
+        })
+    #check login
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success':False,
+            'login_required':True,
+            'error':'Vui lòng đăng nhập để comment'
+        })
+    # lấy user hiện tại
+    user = request.user
+    userName = user.username
+    userId = user.id
+    if user.avatar:
+        userImages = user.avatar.url
+    else:
+        userImages = ''
+
+    #lấy dữ liệu từ ajax
+    blog_id = request.POST.get('blog_id')
+    comment = request.POST.get('comment')
+    parent_id = request.POST.get('parent_id')
+
+    #ktra comment
+    if not comment or not comment.strip():
+        return JsonResponse({
+            'success':False,
+            'error':'Vui lòng comment'
+        })
+    #ktra blog
+    blog = get_object_or_404(Blog, id=blog_id)
+
+    #xác định comment cha
+    parent = None
+    level = 0
+
+    if parent_id:
+        parent = get_object_or_404(Comments, id = parent_id)
+        level = 1
+
+    #lưu comment
+
+    new_comment = Comments.objects.create(
+        comment = comment.strip(),
+        author_name = userName,
+        author_image = userImages,
+        blog = blog,
+        author_id = userId,
+        parent = parent,
+        level= level
+    )
+
+    #data trả về ajax
+    comment_data = {
+        'id': new_comment.id,
+        'comment': new_comment.comment,
+        'author_name': new_comment.author_name,
+        'author_image': new_comment.author_image,
+        'blog_id': new_comment.blog_id,
+        'author_id': new_comment.author_id,
+        'parent_id': new_comment.parent_id,
+        'level' : new_comment.level,
+        'created':new_comment.created.strftime(
+            '%d/%m/%Y %H:%M'
+        )
+    }
+    return JsonResponse({
+        'success':True,
+        'data':comment_data
     })

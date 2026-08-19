@@ -22,5 +22,13 @@ class Rate(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
 
-    
+class Comments(models.Model):
+    comment = models.TextField()
+    author_name = models.TextField()
+    author_image = models.TextField()
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE,related_name='comments')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
+    parent = models.ForeignKey('self',on_delete=models.CASCADE,null=True,blank=True,related_name='replies')
+    level = models.IntegerField(default=0)
+    created = models.DateTimeField(default=timezone.now)
 # Create your models here.
