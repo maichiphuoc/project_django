@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             e.preventDefault();
 
-            if(! checkLogin){
+            if(! checkLogin()){
                 return;
             }
 
