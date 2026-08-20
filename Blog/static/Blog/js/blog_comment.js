@@ -1,8 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
 
-    console.log("===== COMMENT JS START =====");
-
-    //form comment
 
     const commentData =
         document.getElementById('comment-data');
@@ -10,97 +7,162 @@ document.addEventListener('DOMContentLoaded', function () {
     const commentForm =
         document.getElementById('comment-form');
 
-    if (!commentData) {
+    const commentsList =
+        document.getElementById('comments-list');
+
+
+    // ktra html
+
+    if (!commentData || !commentForm || !commentsList) {
         return;
     }
 
-    if (!commentForm) {
-        return;
-    }
+    // url ajax
+
     const commentUrl =
         commentData.dataset.commentUrl;
 
 
 
+    function checkLogin() {
 
-    commentForm.addEventListener('submit', function (e) {
-
-        e.preventDefault();
-
-
-        const isAuthenticated = commentData.dataset.authenticated === 'true';
+        const isAuthenticated =
+            commentData.dataset.authenticated === 'true';
 
 
         if (!isAuthenticated) {
 
-            alert('Vui lòng login để comment');
+            alert(
+                'Vui lòng đăng nhập để comment'
+            );
 
-            return;
+            return false;
         }
 
 
-        //lấy data
-        const blogId =
-            document.getElementById('blog_id').value;
+        return true;
+    }
 
 
-        const commentInput =
-            document.getElementById('comment');
+    // form comment cha
+
+    commentForm.addEventListener(
+        'submit',
+        function (e) {
+
+            e.preventDefault();
+
+            if(! checkLogin){
+                return;
+            }
 
 
-        const comment =
-            commentInput.value.trim();
+            // lấy blog id
+            const blogId =
+                document.getElementById(
+                    'blog_id'
+                ).value;
 
 
-        const parentId =
-            document.getElementById('parent_id').value;
+            // lấy nội dung comment
+            const commentInput =
+                document.getElementById(
+                    'comment'
+                );
 
-        if (comment === '') {
 
-            alert('Vui lòng nhập comment');
+            const comment =
+                commentInput.value.trim();
 
-            return;
+
+            // kiểm tra rỗng
+            if (comment === '') {
+
+                alert(
+                    'Vui lòng nhập comment'
+                );
+
+                return;
+            }
+            //Comment cha không có parent, parent_id = ''
+
+            sendComment(
+                blogId,
+                comment,
+                '',
+                null
+            );
+
         }
+    );
 
-        //csrf
+    // hàm gửi comment ajax
+
+    function sendComment(
+        blogId,
+        comment,
+        parentId,
+        replyFormContainer
+    ) {
+
+        // lấy CSRF
         const csrfToken =
             document.querySelector(
                 '[name="csrfmiddlewaretoken"]'
             ).value;
-        //ajax
-        fetch(commentUrl, {
 
-            method: 'POST',
 
-            headers: {
+        fetch(
+            commentUrl,
+            {
 
-                'Content-Type':
-                    'application/x-www-form-urlencoded',
+                method: 'POST',
 
-                'X-CSRFToken':
-                    csrfToken
-            },
+                headers: {
 
-            body: new URLSearchParams({
+                    'Content-Type':
+                        'application/x-www-form-urlencoded',
 
-                blog_id: blogId,
+                    'X-CSRFToken':
+                        csrfToken
 
-                comment: comment,
+                },
 
-                parent_id: parentId
+                body:
+                    new URLSearchParams({
 
-            })
+                        blog_id: blogId,
+
+                        comment: comment,
+
+                        parent_id: parentId
+
+                    })
+
+            }
+        )
+        // nhận response
+
+        .then(function (response) {
+
+            if (!response.ok) {
+
+                throw new Error(
+                    'HTTP Error: ' +
+                    response.status
+                );
+
+            }
+
+            return response.json();
 
         })
 
 
-        // nhận response
-        .then(response => response.json())
+        // xử lí data
 
+        .then(function (data) {
 
-        .then(data => {
-
-            //báo lỗi server
             if (!data.success) {
 
                 alert(data.error);
@@ -109,74 +171,48 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
 
-            // lấy comment server trả về
+            /*
+                Comment server vừa tạo
+            */
+
             const cmt = data.data;
-            
-            // tạo html comment
-            const html = `
-
-                <div
-                    class="comment-item"
-                    id="comment-${cmt.id}"
-                >
-
-                    <div class="comment-user">
-
-                        <img
-                            src="${cmt.author_image}"
-                            width="50"
-                            height="50"
-                        >
-
-                        <strong>
-                            ${cmt.author_name}
-                        </strong>
-
-                    </div>
 
 
-                    <div class="comment-content">
+            /*
+                Tạo HTML
+            */
 
-                        ${cmt.comment}
+            const html =
+                createCommentHTML(cmt);
 
-                    </div>
+            // comment cha
 
-
-                    <div class="comment-time">
-
-                        ${cmt.created}
-
-                    </div>
-
-
-                    <button
-                        type="button"
-                        class="reply-btn"
-                        data-id="${cmt.id}"
-                    >
-                        Reply
-                    </button>
-
-
-                </div>
-
-            `;
-            //comment cha
             if (cmt.parent_id === null) {
 
-                document
-                    .getElementById('comments-list')
-                    .insertAdjacentHTML(
-                        'beforeend',
-                        html
+                const commentList =
+                    document.querySelector(
+                        '.comment-list'
                     );
+
+
+                commentList.insertAdjacentHTML(
+                    'beforeend',
+                    html
+                );
+
+
+                // xóa textarea comment cha
+
+                document.getElementById(
+                    'comment'
+                ).value = '';
 
             }
 
+            // comment con
 
-            //comment con
             else {
-
+                // tìm comment cha
                 const parentElement =
                     document.getElementById(
                         `comment-${cmt.parent_id}`
@@ -194,45 +230,60 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
 
+                /*
+                    Tìm ul.replies
+                    trực tiếp của comment cha
+                */
+
                 let replies =
                     parentElement.querySelector(
-                        '.replies'
+                        ':scope > .replies'
                     );
 
 
-                // Nếu comment cha chưa có .replies
+                // nếu chưa có reply thì tạo
+
                 if (!replies) {
 
                     replies =
-                        document.createElement('div');
+                        document.createElement(
+                            'ul'
+                        );
 
-                    replies.className = 'replies';
+                    replies.className =
+                        'replies';
 
                     parentElement.appendChild(
                         replies
                     );
+
                 }
 
+                // thêm reply vào cuối dsach reply
 
                 replies.insertAdjacentHTML(
                     'beforeend',
                     html
                 );
 
+
+                // xóa form reply
+
+                if (replyFormContainer) {
+
+                    replyFormContainer.innerHTML =
+                        '';
+
+                }
+
             }
-
-
-            // reset form
-            commentInput.value = '';
-
-            document.getElementById(
-                'parent_id'
-            ).value = '';
 
         })
 
-        // tbao lỗi ajax
-        .catch(error => {
+
+        //bắt lỗi ajax error
+
+        .catch(function (error) {
 
             console.error(
                 'AJAX ERROR:',
@@ -245,36 +296,292 @@ document.addEventListener('DOMContentLoaded', function () {
 
         });
 
-    });
+    }
 
 
-    // xử lí click reply
+    // tạo html comment
 
-    document
-        .getElementById('comments-list')
-        .addEventListener('click', function (e) {
+    function createCommentHTML(cmt) {
+
+        /*
+            Nếu parent_id = null
+            => comment cha
+
+            Nếu có parent_id
+            => comment con
+        */
+
+
+        if (cmt.parent_id === null) {
+
+            return `
+
+                <li
+                    class="comment-item"
+                    id="comment-${cmt.id}"
+                >
+
+                    <div class="comment-parent">
+
+                        <div class="comment-user">
+
+                            <img
+                                src="${cmt.author_image}"
+                                width="50"
+                                height="50"
+                            >
+
+                            <strong>
+                                ${cmt.author_name}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="comment-content">
+                            ${cmt.comment}
+                        </div>
+
+
+                        <div class="comment-time">
+                            ${cmt.created}
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="reply-btn"
+                            data-id="${cmt.id}"
+                        >
+                            Reply
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        class="reply-form-container"
+                    ></div>
+
+
+                    <ul class="replies"></ul>
+
+                </li>
+
+            `;
+
+        }
+
+
+        // comment con
+
+        return `
+
+            <li
+                class="comment-child"
+                id="comment-${cmt.id}"
+            >
+
+                <div class="comment-user">
+
+                    <img
+                        src="${cmt.author_image}"
+                        width="40"
+                        height="40"
+                    >
+
+                    <strong>
+                        ${cmt.author_name}
+                    </strong>
+
+                </div>
+
+
+                <div class="comment-content">
+                    ${cmt.comment}
+                </div>
+
+
+                <div class="comment-time">
+                    ${cmt.created}
+                </div>
+
+            </li>
+
+        `;
+
+    }
+
+    // click reply
+
+    commentsList.addEventListener(
+        'click',
+        function (e) {
+
+
+            // ktra có click vào nút reply không
 
             if (
-                e.target.classList.contains('reply-btn')
+                !e.target.classList.contains(
+                    'reply-btn'
+                )
             ) {
 
-                const commentId =
-                    e.target.dataset.id;
+                return;
+            }
 
 
-                // Lưu ID comment cha
+            /*
+                Kiểm tra login
+            */
+
+            if (!checkLogin()) {
+
+                return;
+            }
+
+
+            // lấy id comment cha
+
+            const commentId =
+                e.target.dataset.id;
+
+
+            // tìm thẻ li của comment cha
+
+            const parentElement =
                 document.getElementById(
-                    'parent_id'
-                ).value = commentId;
+                    `comment-${commentId}`
+                );
 
+            // tìm nơi đặt form
 
-                // Focus vào textarea
-                document.getElementById(
-                    'comment'
-                ).focus();
+            const formContainer =
+                parentElement.querySelector(
+                    ':scope > .reply-form-container'
+                );
+
+            // nếu form đang mở thì đóng form
+
+            if (
+                formContainer.innerHTML.trim()
+                !== ''
+            ) {
+
+                formContainer.innerHTML =
+                    '';
+
+                return;
 
             }
 
-        });
+            // tạo form reply
+            formContainer.innerHTML = `
+
+                <form class="reply-form">
+
+                    <textarea
+                        class="reply-input"
+                        placeholder="Viết câu trả lời..."
+                    ></textarea>
+
+
+                    <button
+                        type="submit"
+                        class="send-reply-btn"
+                    >
+                        Gửi reply
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="cancel-reply-btn"
+                    >
+                        Hủy
+                    </button>
+
+                </form>
+
+            `;
+
+            // focus textarea
+            const replyInput =
+                formContainer.querySelector(
+                    '.reply-input'
+                );
+
+            replyInput.focus();
+
+
+            // submit form reply
+            const replyForm =
+                formContainer.querySelector(
+                    '.reply-form'
+                );
+
+
+            replyForm.addEventListener(
+                'submit',
+                function (event) {
+
+                    event.preventDefault();
+
+
+                    const reply =
+                        replyInput.value.trim();
+
+
+                    if (reply === '') {
+
+                        alert(
+                            'Vui lòng nhập nội dung reply'
+                        );
+
+                        return;
+                    }
+
+
+                    const blogId =
+                        document.getElementById(
+                            'blog_id'
+                        ).value;
+
+
+                    /*
+                        parentId chính là
+                        ID của comment cha
+                    */
+
+                    sendComment(
+                        blogId,
+                        reply,
+                        commentId,
+                        formContainer
+                    );
+
+                }
+            );
+
+
+            // button hủy
+            const cancelButton =
+                formContainer.querySelector(
+                    '.cancel-reply-btn'
+                );
+
+
+            cancelButton.addEventListener(
+                'click',
+                function () {
+
+                    formContainer.innerHTML =
+                        '';
+
+                }
+            );
+
+        }
+    );
 
 });

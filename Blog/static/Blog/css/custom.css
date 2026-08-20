@@ -10,3 +10,63 @@
 .ratings_stars.ratings_hover {
     color: yellow;
 }
+/* comment */
+/* Danh sách comment */
+.comment-list,
+.replies {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Comment cha */
+.comment-item {
+    margin-bottom: 20px;
+}
+
+/* QUAN TRỌNG:
+   Toàn bộ khu vực reply thụt sang phải */
+.comment-item > .replies {
+    margin-left: 60px;
+    margin-top: 15px;
+    padding-left: 20px;
+    border-left: 3px solid #ddd;
+}
+
+/* Comment con */
+.comment-child {
+    margin-bottom: 15px;
+}
+
+/* User */
+.comment-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.comment-user img {
+    border-radius: 50%;
+}
+
+/* Nội dung */
+.comment-content {
+    margin-top: 8px;
+}
+
+/* Thời gian */
+.comment-time {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #888;
+}
+
+/* Nút Reply */
+.reply-btn {
+    margin-top: 8px;
+}
+
+/* Form reply */
+.reply-form-container {
+    margin-top: 10px;
+}
