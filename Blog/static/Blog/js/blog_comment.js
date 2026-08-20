@@ -10,32 +10,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const commentForm =
         document.getElementById('comment-form');
 
-
-    console.log("commentData:", commentData);
-    console.log("commentForm:", commentForm);
-
-
-    // =========================
-    // KIỂM TRA HTML
-    // =========================
-
     if (!commentData) {
-        console.error("KHÔNG TÌM THẤY comment-data");
         return;
     }
 
     if (!commentForm) {
-        console.error("KHÔNG TÌM THẤY comment-form");
         return;
     }
     const commentUrl =
         commentData.dataset.commentUrl;
 
-
-    console.log(
-        "commentUrl:",
-        commentUrl
-    );
 
 
 
