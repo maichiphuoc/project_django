@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'Users/css/account.css' %}">
+{% endblock %}
+
+
+{% block menu %}
+
+    {% include 'Users/accountMenu.html' %}
+
+{% endblock %}
+
+
+{% block content %}
+    <h2>Thêm sản phẩm</h2>
+
+    <form id="productAjax" method="POST" enctype="multipart/form-data" >
+        {% csrf_token %}
+        <div class="addProduct-form-group">
+            <input type="text" name="name" id="name" placeholder="Name">
+            <span id="error-name"></span>
+        </div>
+        <div class="addProduct-form-group">
+            <input type="number" name="price" id="price" placeholder="Price">
+            <span id="error-price"></span>
+
+        </div>
+    
+        <div class="addProduct-form-group">
+            <select name="category" required>
+                <option value="">
+                    -- Chọn Category --
+                </option>
+                {% for category in categories %}
+                <option value="{{category.id}}">
+                    {{category.name}}
+                </option>
+                {% endfor %}
+            </select>
+            <span id="error-category"></span>
+        </div>
+        <div class="addProduct-form-group">
+            <select name="brand" required>
+                <option value="">
+                    -- Chọn Brand --
+                </option>
+                {% for brand in brands %}
+                <option value="{{brand.id}}">
+                    {{brand.name_brand}}
+                </option>
+                {% endfor %}
+            </select>
+            <span id="error-brand"></span>
+        </div>
+        <div class="addProduct-form-group">
+            <select name="sale_status" id="sale_status" required>
+                <option value="0">new</option>
+                <option value="1">Sale</option>
+            </select>
+            <span id="error-sale-status"></span>
+        </div>
+        <div id="sale-box" style="display: none;" class="addProduct-form-group">
+            <input type="number" name="sale" id="sale" value="0" min="0" max="100"  required>
+            <span>%</span>
+            <span id="error-sale"></span>
+        </div>
+        <div class="addProduct-form-group">
+            <input type="file" name="images" id="images" placeholder="" multiple accept=".jpg,.jpeg,.png" required>
+            <span id="error-images"></span>
+        </div>
+        <div class="addProduct-form-group">
+            <textarea type="text" name="detail" id="detail" placeholder="Detail"></textarea>
+            <span id="error-detail"></span>
+        </div>
+        <button type="submit">Thêm sản phẩm</button>
+
+    </form>
+
+
+{% endblock %}
+{% block productAjax %}
+<script src="{% static 'Users/js/addProduct.js' %}"></script>
+{% endblock %}

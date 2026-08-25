@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'Users/css/account.css' %}">
+{% endblock %}
+
+
+{% block menu %}
+
+    {% include 'Users/accountMenu.html' %}
+
+{% endblock %}
+
+
+{% block content %}
+    {% if my_product %}
+    <table>
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>Name</th>
+                <th>Image</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in my_product %}
+            <tr>
+                <td>
+                    {{product.id}}
+                </td>
+                <td>
+                    {{product.name}}
+                </td>
+                <td>
+                    {% if product %}
+                    <img src="{{product.image.list.0}}" alt="{{product.name}}" width="100">
+                    {% else %}
+                    <p>không có ảnh</p>
+                    {% endif %}
+                </td>
+                <td>
+                    {{product.price}}
+                </td>
+                <td>
+                    <a href="#">Sửa</a>
+                    <a href="#">Xóa</a>
+                </td>
+                
+                
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Không có sản phẩm nào</p>
+    {% endif %}
+
+
+{% endblock %}

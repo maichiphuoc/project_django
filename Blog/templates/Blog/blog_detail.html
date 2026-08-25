@@ -64,137 +64,60 @@
 </div>
 <div
     id="comment-data"
-    data-authenticated="{{ user.is_authenticated|yesno:'true,false' }}"
+    data-authenticated = "{{user.is_authenticated|yesno:'true,false'}}"
     data-comment-url="{% url 'blog_comment' %}"
 ></div>
-
-
-
 <div class="commenting">
-
     <form id="comment-form">
-
         {% csrf_token %}
-
-        <input
-            type="hidden"
-            id="blog_id"
-            value="{{ blog.id }}"
-        >
-
-        <textarea
-            id="comment"
-            placeholder="Viết bình luận..."
-        ></textarea>
-
-        <button type="submit">
-            Comment
-        </button>
-
+        <input type="hidden" id="blog_id" value="{{blog.id}}">
+        <textarea id="comment" placeholder="Viết bình luận ..."></textarea>
+        <button type="submit">Comment</button>
     </form>
-
 </div>
-
-
 <div id="comments-list">
-
     <ul class="comment-list">
-
         {% for cmt in comments %}
-
-        <!-- COMMENT CHA -->
-        <li
-            class="comment-item"
-            id="comment-{{ cmt.id }}"
-        >
-
+        <!-- comment Cha -->
+        <li class="comment-item" id="comment-{{cmt.id}}">
             <div class="comment-parent">
-
                 <div class="comment-user">
-
-                    <img
-                        src="{{ cmt.author_image }}"
-                        width="50"
-                        height="50"
-                    >
-
-                    <strong>
-                        {{ cmt.author_name }}
-                    </strong>
-
+                    <img src="{{cmt.author_image}}" width="50" height="50">
+                    <strong>{{cmt.author_name}}</strong>
                 </div>
-
                 <div class="comment-content">
-                    {{ cmt.comment }}
+                    {{cmt.comment}}
                 </div>
-
                 <div class="comment-time">
-                    {{ cmt.created|date:"d/m/Y H:i" }}
+                    {{cmt.created|date:"d/m/Y H:i" }}
                 </div>
-
-                <button
-                    type="button"
-                    class="reply-btn"
-                    data-id="{{ cmt.id }}"
-                >
+                <button type="button" class="reply-btn" data-id="{{cmt.id}}">
                     Reply
                 </button>
-
             </div>
-
-
             <!-- form reply được chèn js vào đây -->
-
             <div class="reply-form-container"></div>
-
-
-            <!-- DANH SÁCH COMMENT CON -->
-
+            <!-- dsach comment con -->
             <ul class="replies">
-
                 {% for reply in cmt.replies.all %}
-
-                <li
-                    class="comment-child"
-                    id="comment-{{ reply.id }}"
-                >
-
+                <li class="comment-child" id="comment-{{reply.id}}">
                     <div class="comment-user">
-
-                        <img
-                            src="{{ reply.author_image }}"
-                            width="40"
-                            height="40"
-                        >
-
-                        <strong>
-                            {{ reply.author_name }}
-                        </strong>
-
+                        <img src="{{ reply.author_image}}" height="40" width="40">
+                        <strong>{{reply.author_name}}</strong>
                     </div>
-
                     <div class="comment-content">
-                        {{ reply.comment }}
+                        {{reply.comment}}
                     </div>
-
                     <div class="comment-time">
-                        {{ reply.created|date:"d/m/Y H:i" }}
+                        {{reply.created|date:"d/m/Y H:i"}}
                     </div>
-
                 </li>
-
                 {% endfor %}
-
             </ul>
-
         </li>
-
         {% endfor %}
-
     </ul>
-
 </div>
-
 
 <hr>
 

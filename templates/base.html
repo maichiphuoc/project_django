@@ -23,7 +23,11 @@
     <div class="main-container">
 
         <aside class="menuLeft">
-            {% include 'menuLeft.html' %}
+
+            {% block menu %}
+                {% include 'menuLeft.html' %}
+            {% endblock %}
+
         </aside>
 
         <main class="content">
@@ -39,6 +43,9 @@
             {% endblock %}
 
             {% block commentJs %}
+            {% endblock %}
+            
+            {% block productAjax %}
             {% endblock %}
 
         </main>

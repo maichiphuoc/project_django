@@ -58,7 +58,7 @@ def blog_detail(request, blog_id):
     average_star = round(average_rate)
 
     comments = Comments.objects.filter(
-        blog=blog,
+        blog = blog,
         level = 0,
     ).prefetch_related('replies')
 
@@ -198,12 +198,12 @@ def blog_comment(request):
             'success':False,
             'error':'Invalid request'
         })
-    #check login
+    # check login
     if not request.user.is_authenticated:
         return JsonResponse({
             'success':False,
             'login_required':True,
-            'error':'Vui lòng đăng nhập để comment'
+            'error':'Vui lòng login để comment'
         })
     # lấy user hiện tại
     user = request.user
@@ -226,18 +226,16 @@ def blog_comment(request):
             'error':'Vui lòng comment'
         })
     #ktra blog
-    blog = get_object_or_404(Blog, id=blog_id)
+    blog = get_object_or_404(Blog, id = blog_id)
 
-    #xác định comment cha
+    #xđinh comment cha
     parent = None
     level = 0
 
     if parent_id:
         parent = get_object_or_404(Comments, id = parent_id)
         level = 1
-
-    #lưu comment
-
+    # lưu comment
     new_comment = Comments.objects.create(
         comment = comment.strip(),
         author_name = userName,
@@ -245,24 +243,23 @@ def blog_comment(request):
         blog = blog,
         author_id = userId,
         parent = parent,
-        level= level
+        level = level,
     )
-
-    #data trả về ajax
+    # data trả vể ajax
     comment_data = {
-        'id': new_comment.id,
-        'comment': new_comment.comment,
-        'author_name': new_comment.author_name,
-        'author_image': new_comment.author_image,
-        'blog_id': new_comment.blog_id,
-        'author_id': new_comment.author_id,
-        'parent_id': new_comment.parent_id,
+        'id' : new_comment.id,
+        'comment' : new_comment.comment,
+        'author_name' : new_comment.author_name,
+        'author_image' : new_comment.author_image,
+        'blog_id' : new_comment.blog_id,
+        'author_id' : new_comment.author_id,
+        'parent_id' : new_comment.parent_id,
         'level' : new_comment.level,
-        'created':new_comment.created.strftime(
+        'created' : new_comment.created.strftime(
             '%d/%m/%Y %H:%M'
         )
     }
     return JsonResponse({
-        'success':True,
+        'success': True,
         'data':comment_data
     })

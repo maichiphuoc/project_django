@@ -62,3 +62,10 @@ class loginForm(AuthenticationForm):
             }
         )
     )
+class accountForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username','email','password','avatar','id_country']
+        widgets = {
+                'avatar': forms.FileInput(),
+            }
