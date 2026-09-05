@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     # path('', views.index, name='index'),
@@ -9,6 +11,11 @@ urlpatterns = [
     path('home/', views.home, name='home'),
     path('account/',views.account_view, name='account'),
     path('my-product/',views.myProduct_view, name='my-product'),
-    path('add-product/', views.addAjax, name='addProduct')
+    path('add-product/', views.addAjax, name='addProduct'),
+    path('edit-product/<int:product_id>/',views.editProduct,name='editProduct')
 
 ]
+urlpatterns += static(
+    settings.MEDIA_URL,
+    document_root=settings.MEDIA_ROOT
+)

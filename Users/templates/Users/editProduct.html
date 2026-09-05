@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'Users/css/editProduct.css' %}">
+{% endblock %}
+
+
+{% block menu %}
+
+    {% include 'Users/accountMenu.html' %}
+
+{% endblock %}
+
+
+{% block content %}
+    <h2>Sửa sản phẩm</h2>
+
+    <form id="edit_productAjax" method="POST" enctype="multipart/form-data" >
+        {% csrf_token %}
+        <div class="addProduct-form-group">
+            <input type="text" name="name" id="name" placeholder="Name" value="{{product.name}}">
+        </div>
+        <div class="addProduct-form-group">
+            <input type="number" name="price" id="price" placeholder="Price" value="{{product.price}}">
+
+        </div>
+    
+        <div class="addProduct-form-group">
+            <select name="category" required>
+                <option value="">
+                    -- Chọn Category --
+                </option>
+                {% for category in categories %}
+                <option value="{{category.id}}"{% if product.category.id == category.id %}
+                selected
+                {% endif %}
+                >
+                    {{category.name}}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="addProduct-form-group">
+            <select name="brand" required>
+                <option value="">
+                    -- Chọn Brand --
+                </option>
+                {% for brand in brands %}
+                <option value="{{brand.id}}"{% if product.brand.id == brand.id %}
+                        selected
+                    {% endif %}>
+                    {{brand.name_brand}}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="addProduct-form-group">
+            <select name="sale_status" id="sale_status" required>
+                <option value="0" {% if product.sale_status == 0 %}
+                    selected
+                {% endif %}>
+                    new</option>
+                <option value="1"{% if product.sale_status == 1 %}
+                    selected
+                {% endif %}
+                    >Sale</option>
+            </select>
+        </div>
+        <div id="sale-box" class="addProduct-form-group" {% if product.sale_status != 1 %}
+                style="display:none;"
+            {% endif %}>
+            <input type="number" name="sale" id="sale" value="{{product.sale}}" min="0" max="100"   required>
+            <span>%</span>
+        </div>
+        <!-- Ảnh cũ -->
+        <div class="addProduct-form-group">
+            <label for="">Ảnh hiện tại:</label>
+            <div class="old-images">
+                {% for image in product.image_list %}
+                <div class="old-image-item">
+                    <img src="{{MEDIA_URL}}products/{{image}}" width="100" alt="{{image}}">
+                    <div class="delete-image">
+                        <input type="checkbox"
+                        name="delete_images"
+                        value="{{image}}"
+                        id="delete_{{ forloop.counter }}"
+                        >
+                        <label for="delete_{{ forloop.counter }}">
+                            Xóa
+                        </label>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <!-- Ảnh mới -->
+        <div class="addProduct-form-group">
+            <label for="images">
+                Thêm ảnh mới:
+            </label>
+            <input type="file"
+            name="images"
+            id="images"
+            multiple
+            accept=".jpg,.jpeg,.png"
+            >
+            <span id="error-images" class="error-message"></span>
+        </div>
+
+        <div class="addProduct-form-group">
+            <textarea type="text" name="detail" id="detail" placeholder="Detail">{{product.detail}}</textarea>
+        </div>
+        <button type="submit">Sửa sản phẩm sản phẩm</button>
+
+    </form>
+
+
+{% endblock %}
+{% block edit_productAjax %}
+<script src="{% static 'Users/js/editProduct.js' %}"></script>
+{% endblock %}

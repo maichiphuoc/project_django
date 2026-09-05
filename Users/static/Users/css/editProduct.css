@@ -1,0 +1,43 @@
+.old-images {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.old-image-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.old-image-item img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border: 1px solid #ddd;
+    margin-bottom: 5px;
+}
+
+.delete-image {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.delete-image input[type="checkbox"] {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.delete-image label {
+    margin-top: 3px;
+    cursor: pointer;
+}
+.error-message {
+    display: block;
+    margin-top: 8px;
+    color: red;
+    font-size: 14px;
+}
