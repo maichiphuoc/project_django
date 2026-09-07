@@ -87,8 +87,14 @@ def logout_view(request):
     return redirect('login')
 @login_required
 def home(request):
-    products = Product.objects.all().order_by('-created_at')
-    return render(request,'Users/index.html')
+    products = Product.objects.all().order_by('-created_at')[:6]
+    for product in products:
+        try:
+            product.image_list = json.loads(product.images) if product.images else []
+        except(json.JSONDecodeError,TypeError):
+            product.image_list = []
+
+    return render(request,'Users/index.html',{'products':products})
 
 @login_required
 def addAjax(request):
@@ -433,5 +439,23 @@ def editProduct(request, product_id):
         },
         status = 400
     )
+@login_required
+def detailProduct(request, product_id):
+    try:
+        product = Product.objects.get(id = product_id)
+    except Product.DoesNotExist:
+        return JsonResponse(
+            {
+                'error' : 'status',
+                'message' : 'Không tìm thấy sản phẩm'
+            },
+            status = 400
+        )
+    
+    try:
+        product.image_list = (json.loads(product.images) if product.images else [])
+    except(json.JSONDecodeError, TypeError):
+        product.image_list = []
+    return render(request,'Users/detail_Product.html',{'product':product})
 
 

@@ -1,9 +1,31 @@
 {% extends 'base.html' %}
+{% block css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'Users/css/index.css' %}">
+{% endblock %}
 
 {% block content %}
 
 <h1>Trang chủ</h1>
 
 <p>Đây là nội dung trang chủ.</p>
+<div class="product-grid">
+    {% for item in products %}
+    <div class="product-card">
+        <div class="product-img">
+            {% if item.image_list %}
+            <img src="/media/products/{{item.image_list.0}}" alt="">
+            {% endif %}
+            <div class="overlay">
+                    <a href="{% url 'detailProduct' item.id %}" class="btn-detail">
+                         Detail
+                    </a>
+                </div>
+            <h3>{{item.name}}</h3>
+            <p>{{item.created_at}}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 
 {% endblock %}

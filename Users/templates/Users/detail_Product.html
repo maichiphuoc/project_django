@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'Users/css/detailProduct.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="product-detail">
+    <!-- POPUP ẢNH FULL SIZE -->
+    <div id="imagePopup" class="image-popup">
+
+        <span class="close-popup">&times;</span>
+
+        <img id="popupImage" src="" alt="Full size image">
+        
+    </div>
+
+    <div class="product-gallery">
+
+        <!-- ẢNH LỚN -->
+        <div class="product-img">
+
+            {% if product.image_list %}
+                <img
+                    id="main-item"
+                    src="/media/products/{{ product.image_list.0 }}"
+                    alt="{{ product.name }}"
+                >
+            {% else %}
+                <div class="no-image">
+                    No image
+                </div>
+            {% endif %}
+
+        </div>
+
+
+        <!-- DANH SÁCH ẢNH NHỎ -->
+        {% if product.image_list %}
+
+        <div class="thumbnail-list">
+
+            {% for image in product.image_list %}
+
+                <div class="thumbnail-item {% if forloop.first %}active{% endif %}">
+
+                    <img
+                        class="thumbnail-img"
+                        src="/media/products/{{ image }}"
+                        alt="{{ product.name }}"
+                    >
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+    <div class="info-product">
+        <h2 class="product-name">{{ product.name }}</h2>
+
+        <div class="info-row">
+            <span class="info-label">ID:</span>
+            <span class="info-value">{{ product.id }}</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Price:</span>
+            <span class="info-value price">{{ product.price }} đ</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Số lượng:</span>
+            <input type="number" class="qty-input" min="1" value="1">
+        </div>
+
+        <button class="btn-addcart">🛒 Add to Cart</button>
+
+        <div class="info-row">
+            <span class="info-label">Condition:</span>
+            <span class="info-value badge">
+                {% if product.sale_status == 1 %}
+                    Sale
+                {% else %}
+                    New
+                {% endif %}
+            </span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Category:</span>
+            <span class="info-value">{{ product.category }}</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Brand:</span>
+            <span class="info-value">{{ product.brand }}</span>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+{% block edit_productAjax %}
+<script src="{% static 'Users/js/detailProduct.js' %}"></script>
+{% endblock %}
