@@ -78,5 +78,28 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+class Cart(models.Model):
+    user = models.OneToOneField(
+        User,on_delete=models.CASCADE
+    )
+    class Meta:
+        db_table = 'Cart'
+
+    def __str__(self):
+        return self.user
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart,on_delete=models.CASCADE,related_name='items')
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='cart_items'
+    )
+
+    quantity = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f'{self.product.name} - {self.quantity}'
+
 
 # Create your models here.

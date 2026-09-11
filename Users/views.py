@@ -6,7 +6,7 @@ from django.contrib.auth import login,logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import registerForm,loginForm, accountForm
-from .models import Country,Product,Category,Brand
+from .models import Country,Product,Category,Brand,Cart,CartItem
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from PIL import Image
@@ -458,4 +458,218 @@ def detailProduct(request, product_id):
         product.image_list = []
     return render(request,'Users/detail_Product.html',{'product':product})
 
+@login_required
+def add_to_cart(request, product_id):
+    if request.method != 'POST':
+        return JsonResponse(
+            {
+                'status':'error',
+                'message':'Chỉ cho phép POST'
+            },
+            status = 400
+        )
+    try:
+        data = json.loads(request.body)
+
+        
+        quantity = int(data.get('quantity',1))
+        if quantity <1:
+            quantity = 1
+
+        product = Product.objects.get(id = product_id)
+    except Product.DoesNotExist:
+        return JsonResponse(
+        {
+            'error':'status',
+            'message':'Không tìm thấy sản phẩm'
+        },
+        status = 400
+    )
+    except (json.JSONDecodeError, ValueError, TypeError):
+        return JsonResponse(
+            {
+                'status':'error',
+                'message':'Dữ liệu không hợp lệ'
+            },
+            status = 400
+        )
+
+    cart, created = Cart.objects.get_or_create(
+        user = request.user
+    )
+
+    cart_item, created = CartItem.objects.get_or_create(
+        cart = cart,
+            product = product,
+            defaults={
+                'quantity':quantity
+            }
+    )
+    if not created:
+        cart_item.quantity += quantity
+        cart_item.save(update_fields=['quantity'])
+
+    cart_count = sum(
+        item.quantity
+        for item in cart.items.all()
+    )
+    return JsonResponse(
+        {
+            'status': 'success',
+            'message': 'Đã lấy thông tin sản phẩm',
+            'cart_count':cart_count,
+
+            'product': {
+                'id': product.id,
+                'name': product.name,
+                'price': str(product.price),
+                'sale': product.sale,
+                'sale_status' : product.sale_status,
+                'image' : product.images,
+                'quantity': quantity
+            }
+        }
+    )
+
+@login_required
+def cart_view(request):
+    
+        cart, created = Cart.objects.get_or_create(
+            user = request.user
+        )
+
+        cart_items = CartItem.objects.filter(
+            cart = cart,
+        ).select_related(
+            'product'
+        )
+        for item in cart_items:
+            try:
+                item.product.image_list = (json.loads(item.product.images)
+                    if item.product.images
+                    else [])
+            except(json.JSONDecodeError, TypeError):
+                item.product.image_list = []
+        return render(request,'Users/my_cart.html',{'cart':cart,'cart_items':cart_items})
+@login_required
+def update_cart(request):
+    if request.method != 'POST':
+        return JsonResponse(
+            {
+                'status':'error',
+                'message':'Chỉ cho phép POST',
+            },
+            status = 400
+        )
+    try:
+        data = json.loads(request.body)
+
+        product_id = int(data.get('product_id'))
+
+        action = data.get('action')
+
+    except (json.JSONDecodeError,ValueError, TypeError):
+        return JsonResponse(
+            {
+                'status':'error',
+                'message':'Dữ liệu không hợp lệ'
+            },
+            status = 400,
+        )
+    #kiểm tra aciton
+    if action not in ['plus','minus','delete']:
+        return JsonResponse(
+            {
+                'status':'error',
+                'message':'Action không hợp lệ'
+            },
+            status = 400,
+        )
+    try:
+        cart = Cart.objects.get(
+            user = request.user
+        )
+    except(json.JSONDecodeError, TypeError):
+        return JsonResponse(
+            {
+                'status':'error',
+                'message':'Không tìm thấy sản phẩm'
+            },
+            status = 400,
+        )
+
+    try:
+        cart_item = CartItem.objects.get(
+            cart = cart,
+            product_id = product_id
+        )
+    except CartItem.DoesNotExist:
+        return JsonResponse(
+            {
+                'status':'error',
+                'message':'Sản phẩm không có trong giỏ hàng'
+            },
+            status = 400,
+        )
+
+    if action == 'plus':
+        cart_item.quantity +=1
+        cart_item.save()
+
+    elif action == 'minus':
+        cart_item.quantity -=1
+        if cart_item.quantity <= 0:
+            cart_item.delete()
+
+            cart_count = sum(
+                item.quantity
+                for item in cart.items.all()
+            )
+            return JsonResponse(
+                {
+                    'status': 'success',
+
+                    'message': 'Đã xóa sản phẩm',
+
+                    'delete': True,
+
+                    'cart_count': cart_count
+                }
+            )
+        cart_item.save()
+    
+    elif action == 'delete':
+        cart_item.delete()
+
+        cart_count = sum(
+            item.quantity
+            for item in cart.items.all()
+        )
+
+        return JsonResponse(
+            {
+                'status':'success',
+                'message':'Đã xóa sản phẩm',
+                'delete': True,
+                'quantity': 0,
+                'cart_count' : cart_count
+            }
+        )
+
+    cart_count = sum(
+        item.quantity
+        for item in cart.items.all()
+    )
+
+    return JsonResponse(
+        {
+            'status':'success',
+            'message':'Cập nhật thành công',
+            'delete':False,
+            'quantity':cart_item.quantity,
+            'cart_count':cart_count
+        }
+    )
+
+    
 

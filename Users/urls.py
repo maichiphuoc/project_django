@@ -13,7 +13,10 @@ urlpatterns = [
     path('my-product/',views.myProduct_view, name='my-product'),
     path('add-product/', views.addAjax, name='addProduct'),
     path('edit-product/<int:product_id>/',views.editProduct,name='editProduct'),
-    path('detail-product/<int:product_id>/',views.detailProduct,name='detailProduct')
+    path('detail-product/<int:product_id>/',views.detailProduct,name='detailProduct'),
+    path('add-to-cart/<int:product_id>/',views.add_to_cart,name='add_to_cart'),
+    path('cart/',views.cart_view,name='cart_view'),
+    path('cart/update/',views.update_cart,name='update_cart'),
 
 ]
 urlpatterns += static(

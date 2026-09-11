@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'Users/css/my_cart.css' %}">
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="info-cart">
+    <h2>Giỏ hàng của tôi</h2>
+    {% if cart_items %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Image</th>
+                <th>Price</th>
+                <th>sale</th>
+                <th>Condition</th>
+                <th>Category</th>
+                <th>Brand</th>
+                <th>Quantity</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+            <tr>
+                <td>{{item.product.id}}</td>
+                <td>{{item.product.name}}</td>
+                <td>
+                    {% if item.product.image_list %}
+                    <img src="/media/products/{{item.product.image_list.0}}" width="100" alt="">
+                    {% else %}
+                    <p>Không có ảnh</p>
+                    {% endif %}
+                </td>
+                <td>{{item.product.price}}</td>
+                <td>{{item.product.sale}}</td>
+                <td>
+                    {% if item.product.sale_status == 1 %}
+                        Sale 
+                    {% else %}
+                        NEW
+                    {% endif %}
+                </td>
+                <td>{{item.product.category}}</td>
+                <td>{{item.product.brand}}</td>
+                <td>
+                    <span id="quantity-{{ item.product.id }}">
+                        {{ item.quantity }}
+                    </span>
+                </td>
+                <td>
+                    <a href="#" class="btn-qty" data-id="{{item.product.id}}" data-action="plus">+</a>
+                    <a href="#" class="btn-qty" data-id="{{item.product.id}}" data-action="minus">−</a>
+                    <a href="#" class="btn-qty" data-id="{{item.product.id}}" data-action="delete">X</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Giỏ hàng đang trống</p>
+    {% endif %}
+    <div class="count">
+        <span>Tổng số lượng: </span>
+        <span id="total-count">
+            {{cart_count}}
+        </span>
+    </div>
+
+</div>
+{% endblock %}
+{% block update_cartAjax %}
+<script src="{% static 'Users/js/update_cart.js' %}"></script>
+{% endblock %}

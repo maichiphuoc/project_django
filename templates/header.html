@@ -23,9 +23,10 @@
                 Checkout
             </a>
 
-            <a href="#">
+            <a href="{% url 'cart_view' %}">
                 <span class="icon">🛒</span>
                 Cart
+                (<span id="cart-count">{{cart_count}}</span>)
             </a>
 
             {% if user.is_authenticated %}

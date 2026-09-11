@@ -6,6 +6,7 @@
 {% endblock %}
 
 {% block content %}
+{% csrf_token %}
 <div class="product-detail">
     <!-- POPUP ẢNH FULL SIZE -->
     <div id="imagePopup" class="image-popup">
@@ -79,7 +80,15 @@
             <input type="number" class="qty-input" min="1" value="1">
         </div>
 
-        <button class="btn-addcart">🛒 Add to Cart</button>
+        <button 
+            type="button"
+            class="btn-addcart"
+            id="add-to-cart-btn"
+            data-product-id="{{ product.id }}"
+            data-url="{% url 'add_to_cart' product.id %}"
+        >
+            🛒 Add to Cart
+        </button>
 
         <div class="info-row">
             <span class="info-label">Condition:</span>
