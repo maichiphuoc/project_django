@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'Users/css/search_name.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{% if name %}
+ <p>Kết quả tìm kiếm cho: 
+    <strong>{{ name }}</strong>
+</p> 
+{% else %} 
+<p>Hiển thị tất cả sản phẩm</p>
+{% endif %}
+
+<div class="product-grid">
+    {% if products %}
+        {% for item in products %}
+        <div class="product-card">
+            <div class="product-img">
+                {% if item.image_list %}
+                <img src="/media/products/{{item.image_list.0}}" alt="">
+                {% endif %}
+                <div class="overlay">
+                        <a href="{% url 'detailProduct' item.id %}" class="btn-detail">
+                            Detail
+                        </a>
+                    </div>
+                <h3>{{item.name}}</h3>
+                <p>{{item.created_at}}</p>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %} 
+    <p>Không tìm thấy sản phẩm nào.</p> 
+    {% endif %}
+
+</div>
+
+{% endblock %}
+{% block search_productAjax %}
+<script src="{% static 'Users/js/search_name.js' %}"></script>
+{% endblock %}

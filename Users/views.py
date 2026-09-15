@@ -1012,3 +1012,33 @@ def checkout(request):
 
 
     return render(request,'Users/checkout.html',{'form':form,'cart_items':cart_items,'cart':cart,'cart_total': cart_total,'cart_count':cart_count})
+
+@login_required
+def search_name(request):
+    name = request.GET.get("name", "").strip()
+
+    if name == "":
+        products = Product.objects.all().order_by("-created_at")[:6]
+    else:
+        products = Product.objects.filter(name__icontains=name).order_by('-created_at')
+
+    for product in products:
+        try:
+            product.image_list = json.loads(product.images) if product.images else []
+        except(json.JSONDecodeError, TypeError):
+            product.image_list = []
+    return render(request,'Users/search_name.html',{ "products": products, "name": name, })
+def search_api(request):
+    name = request.GET.get("name","").strip()
+    
+    
+
+    if name == "":
+        products = Product.objects.all().order_by("-created_at")[:6]
+    else:
+        products = Product.objects.filter(name__icontains=name).order_by("-created_at")
+    data = [
+        {"id": p.id,"name":p.name,"price":str(p.price)}
+        for p in products
+    ]
+    return JsonResponse(data,safe=False)

@@ -153,13 +153,18 @@
 }
 
 /* Search box */
-.search-box {
+#searchForm {
     margin-left: auto;
     display: flex;
     align-items: center;
 }
 
-.search-box input {
+#searchForm .search-box {
+    display: flex;
+    align-items: center;
+}
+
+#searchForm .search-box input {
     width: 170px;
     height: 35px;
     padding: 0 12px;
@@ -172,11 +177,11 @@
     outline: none;
 }
 
-.search-box input::placeholder {
+#searchForm .search-box input::placeholder {
     color: #999;
 }
 
-.search-box button {
+#searchForm .search-box button {
     width: 40px;
     height: 35px;
 

@@ -18,6 +18,8 @@ urlpatterns = [
     path('cart/',views.cart_view,name='cart_view'),
     path('cart/update/',views.update_cart,name='update_cart'),
     path('cart/checkout/',views.checkout,name='checkout'),
+    path('search/',views.search_name, name = "search_name"),
+    path('api/search',views.search_api,name="search_api")
 
 ]
 urlpatterns += static(
