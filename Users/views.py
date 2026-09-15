@@ -6,14 +6,21 @@ from django.contrib.auth import login,logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import registerForm,loginForm, accountForm
-from .models import Country,Product,Category,Brand,Cart,CartItem
+from .models import Country,Product,Category,Brand,Cart,CartItem,Order_history,OrderItem
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from PIL import Image
 
+#email
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.conf import settings
+
+
 #ajax
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.http import HttpResponse
 
 import json
 
@@ -34,6 +41,11 @@ def register(request):
             user.is_staff = False
 
             user.save()
+
+            send_welcome_email(user)
+
+            # return HttpResponse("Đăng kí thành công, Đã gửi mail")
+
             return redirect('login')
     else:
         form = registerForm()
@@ -50,6 +62,81 @@ def login_view(request):
     else:
         form = loginForm()
     return render(request,'Users/login.html',{'form':form})
+
+def send_welcome_email(user):
+    subject = 'Chào mừng bạn đến với website'
+    from_email = settings.DEFAULT_FROM_EMAIL
+    to = [user.email]
+
+    #nội dung text callback
+    text_content = f"Chào {user.username}, cảm ơn bạn đã đăng kí"
+
+    #render html từ template
+    html_content = render_to_string('Users/emails/welcome_email.html',{'user':user})
+
+    #gửi email
+    msg = EmailMultiAlternatives(subject,text_content, from_email,to )
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()
+
+def confirmation_order_email(
+    user,
+    order,
+    order_items,
+    cart_count,
+    cart_total,
+    shopper_phone,
+    bill_company,
+    bill_email,
+    bill_title,
+    bill_first_name,
+    bill_last_name,
+    bill_address,
+    shipping_notes,
+    ship_to_bill
+):
+    subject = 'Xác nhận đơn hàng website'
+    from_email = settings.DEFAULT_FROM_EMAIL
+    to = [user.email]
+
+    context = {
+
+        'user': user,
+
+        'order': order,
+
+        'order_items': order_items,
+
+        'cart_count': cart_count,
+
+        'cart_total': cart_total,
+
+        'shopper_phone': shopper_phone,
+
+        'bill_company': bill_company,
+
+        'bill_email': bill_email,
+
+        'bill_title': bill_title,
+
+        'bill_first_name': bill_first_name,
+
+        'bill_last_name': bill_last_name,
+
+        'bill_address': bill_address,
+
+        'shipping_notes': shipping_notes,
+
+        'ship_to_bill': ship_to_bill,
+
+    }
+
+    html_content = render_to_string('Users/emails/confirm_purchase_email.html',context)
+
+    msg = EmailMultiAlternatives(subject,'',from_email,to )
+    msg.attach_alternative(html_content,"text/html")
+    msg.send()
+
 @login_required
 def account_view(request):
     if request.method == 'POST':
@@ -671,5 +758,257 @@ def update_cart(request):
         }
     )
 
+def checkout(request):
+
+    form = registerForm()
+
+    cart = None
+    cart_items = []
+
+    
+    cart_total = 0
+    cart_count = 0
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'register' and not request.user.is_authenticated:
+            form = registerForm(request.POST,request.FILES)
+            if form.is_valid():
+                user = form.save(commit=False)
+
+                user.set_password(form.cleaned_data['password'])
+                user.is_superuser = False
+                user.is_staff = False
+
+                user.save()
+
+                send_welcome_email(user)
+                return redirect('login')
+        elif action == 'order' and request.user.is_authenticated:
+
+            shopper_name = request.POST.get('shopper_name','').strip()
+
+            shopper_email = request.POST.get('shopper_email','').strip()
+
+            shopper_phone = request.POST.get('shopper_phone','').strip()
+
+            bill_company = request.POST.get(
+                'bill_company',
+                ''
+            ).strip()
+
+            bill_email = request.POST.get(
+                'bill_email',
+                ''
+            ).strip()
+
+            bill_title = request.POST.get(
+                'bill_title',
+                ''
+            ).strip()
+
+            bill_first_name = request.POST.get(
+                'bill_first_name',
+                ''
+            ).strip()
+
+            bill_last_name = request.POST.get(
+                'bill_last_name',
+                ''
+            ).strip()
+
+            bill_address = request.POST.get(
+                'bill_address',
+                ''
+            ).strip()
+
+
+            shipping_notes = request.POST.get(
+                'shipping_notes',
+                ''
+            ).strip()
+
+            ship_to_bill = request.POST.get(
+                'ship_to_bill'
+            ) == 'on'
+
+            if not shopper_email:
+                return JsonResponse(
+                    {
+                        'success':False,
+                        'message':'Vui lòng nhập Email'
+                    }
+                )
+            if shopper_email.lower() != request.user.email.lower():
+                return JsonResponse(
+                    {
+                        'success':False,
+                        'message':'Email phải trùng với email đăng kí'
+                    }
+                )
+
+            #lấy Cart
+            cart = Cart.objects.filter(
+                user = request.user
+            ).first()
+            if not cart:
+                return JsonResponse(
+                    {
+                        'success':False,
+                        'message':'Giỏ hàng đang trống'
+                    }
+                )
+            #Lấy CartIem
+            cart_items = CartItem.objects.filter(
+                cart=cart,
+            ).select_related(
+                'product'
+            )
+            if not cart_items.exists():
+                return JsonResponse(
+                    {
+                        'success':False,
+                        'message':'Giỏ hàng đang trống'
+                    }
+                )
+            if not shopper_name:
+                shopper_name = (
+                    f'{request.user.first_name} '
+                    f'{request.user.last_name}'
+                ).strip()
+
+                if not shopper_name:
+                    shopper_name = request.user.username
+            #Tính tổng tiền
+            cart_total = 0
+            cart_count = 0
+            for item in cart_items:
+                product = item.product
+                price = item.product.price
+                sale = product.sale if product.sale_status == 1 else 0
+
+                item_total = (
+                    item.quantity * price
+                )
+
+                discount = (
+                    item_total * sale / 100
+                )
+                cart_total += (
+                    item_total - discount
+                )
+
+                cart_count += item.quantity
+
+            #Tạo order history
+            order = Order_history.objects.create(
+                user = request.user,
+                name = shopper_name,
+                email = shopper_email,
+                phone = shopper_phone,
+                total_price = cart_total
+            )
+
+            #Tạo order items
+            for item in cart_items:
+                product = item.product
+                sale = (
+                    product.sale
+                    if product.sale_status == 1
+                    else 0
+                )
+                OrderItem.objects.create(
+                    order=order,
+
+                    product=product,
+
+                    price=product.price,
+
+                    sale=sale,
+
+                    quantity=item.quantity
+                )
+            #Lấy order items
+            order_items = order.items.select_related(
+                'product',
+                'product__category',
+                'product__brand'
+            )
+            #gửi mail xác nhận đến user
+            confirmation_order_email(
+
+                user=request.user,
+
+                order=order,
+
+                order_items=order_items,
+
+                cart_count=cart_count,
+
+                cart_total=cart_total,
+
+                shopper_phone=shopper_phone,
+
+                bill_company=bill_company,
+
+                bill_email=bill_email,
+
+                bill_title=bill_title,
+
+                bill_first_name=bill_first_name,
+
+                bill_last_name=bill_last_name,
+
+                bill_address=bill_address,
+
+                shipping_notes=shipping_notes,
+
+                ship_to_bill=ship_to_bill
+
+            )
+
+            #Xóa sản phẩm khỏi giỏ
+            cart_items.delete()
+
+
+            #Trả json cho ajax
+            return JsonResponse(
+                {
+                    'success':True,
+                    'message':'Đặt hàng thành công',
+                    'order_id':order.id,
+                    'cart_count': 0,
+                    'cart_total' : 0
+                }
+            )
     
 
+    if request.user.is_authenticated:
+
+        cart, created = Cart.objects.get_or_create(
+                    user = request.user
+                )
+        
+        cart_items = CartItem.objects.filter(
+                    cart = cart,
+                ).select_related(
+                    'product'
+                )
+        for item in cart_items:
+            try:
+                item.product.image_list = (json.loads(item.product.images)
+                    if item.product.images
+                    else [])
+            except(json.JSONDecodeError, TypeError):
+                        item.product.image_list = []
+        cart_count = sum(
+            item.quantity
+            for item in cart_items
+        )
+        cart_total = sum(
+            (item.quantity * item.product.price) - (item.quantity * item.product.price) * (item.product.sale)/100
+            for item in cart_items
+        )
+
+
+    return render(request,'Users/checkout.html',{'form':form,'cart_items':cart_items,'cart':cart,'cart_total': cart_total,'cart_count':cart_count})

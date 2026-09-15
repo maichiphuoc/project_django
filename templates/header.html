@@ -3,7 +3,9 @@
     <div class="header-container">
 
         <div class="logo">
-            <span class="logo-text">E-Shopper</span>
+            <a href="{% url 'home' %}">
+                <span class="logo-text">E-Shopper</span>
+            </a>
         </div>
 
         <div class="menu">
@@ -18,7 +20,7 @@
                 Wishlist
             </a>
 
-            <a href="#">
+            <a href="{% url 'checkout' %}">
                 <span class="icon">✥</span>
                 Checkout
             </a>

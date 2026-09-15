@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
+{% block css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'Users/css/auth/login.css' %}">
+{% endblock %}
+
 {% block content %}
-<div>
+<div class="login-wrapper">
     <h2>Login</h2>
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác nhận đơn hàng</title>
+<base target="_blank">
+</head>
+
+<body style="margin:0; padding:0; background-color:#f4f4f4; font-family:Arial, Helvetica, sans-serif;">
+
+    <div style="max-width:650px; margin:0 auto; background-color:#ffffff;">
+
+        <!-- ===== HEADER ===== -->
+        <div style="background-color:#FE980F; padding:20px; text-align:center;">
+            <h1 style="color:#ffffff; margin:0; font-size:22px;">E-Shopper</h1>
+            <p style="color:#ffffff; margin:5px 0 0;">Xác nhận đơn hàng</p>
+        </div>
+
+        <div style="padding:25px;">
+
+            <!-- ===== LỜI CHÀO ===== -->
+            <h2 style="color:#333333;">Chào {{user.username}}!</h2>
+            <p style="color:#555555; line-height:1.6;">
+                Cảm ơn bạn đã đặt hàng tại E-Shopper. Đơn hàng của bạn đã được tiếp nhận
+                và chúng tôi sẽ xử lý trong thời gian sớm nhất.
+            </p>
+
+            <!-- ===== THÔNG TIN ĐƠN HÀNG ===== -->
+            <table width="100%" cellpadding="10" cellspacing="0" style="background-color:#f9f9f9; border:1px solid #eeeeee; margin-bottom:20px;">
+                <tr>
+                    <td width="50%" style="color:#555555;">
+                        <strong>Mã đơn hàng:</strong><br>{{ order.id }}
+                    </td>
+                    <td width="50%" style="color:#555555;">
+                        <strong>Ngày đặt:</strong><br>{{ order.created_at|date:"d/m/Y H:i" }}
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="color:#555555;">
+                        <strong>Trạng thái:</strong>
+                        <span style="color:#4CAF50; font-weight:bold;">Đã tiếp nhận</span>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- ===== THÔNG TIN KHÁCH HÀNG ===== -->
+            <h3 style="color:#FE980F; border-bottom:2px solid #FE980F; padding-bottom:5px;">Thông tin khách hàng</h3>
+            <p style="color:#555555; line-height:1.8;">
+                <strong>Họ tên:</strong> {{ user.username }}<br>
+                <strong>Email:</strong> {{ user.email }}<br>
+                <strong>Số điện thoại:</strong> {{ shopper_phone }}
+            </p>
+
+            <!-- ===== ĐỊA CHỈ THANH TOÁN (BILL TO) ===== -->
+            <h3 style="color:#FE980F; border-bottom:2px solid #FE980F; padding-bottom:5px;">Địa chỉ xuất hóa đơn</h3>
+            <p style="color:#555555; line-height:1.8;">
+                <strong>Họ tên:</strong> {{ bill_first_name }} {{ bill_last_name }}<br>
+                {% if bill_company %}<strong>Công ty:</strong> {{ bill_company }}<br>{% endif %}
+                <strong>Địa chỉ:</strong> {{ bill_address }}<br>
+                <strong>Email:</strong> {{ bill_email }}
+            </p>
+
+            <!-- ===== ĐỊA CHỈ GIAO HÀNG ===== -->
+            <h3 style="color:#FE980F; border-bottom:2px solid #FE980F; padding-bottom:5px;">Địa chỉ giao hàng</h3>
+            <p style="color:#555555; line-height:1.8;">
+                {% if ship_to_bill %}
+                    Giao đến địa chỉ xuất hóa đơn
+                {% else %}
+                    {{ bill_address }}
+                {% endif %}
+            </p>
+            {% if shipping_notes %}
+            <p style="color:#555555; background-color:#fff8e1; padding:10px; border-left:3px solid #FE980F;">
+                <strong>Ghi chú giao hàng:</strong> {{ shipping_notes }}
+            </p>
+            {% endif %}
+
+            <!-- ===== CHI TIẾT SẢN PHẨM ===== -->
+            <h3 style="color:#FE980F; border-bottom:2px solid #FE980F; padding-bottom:5px;">Chi tiết đơn hàng</h3>
+            <table width="100%" cellpadding="8" cellspacing="0" style="border-collapse:collapse; font-size:14px;">
+                <thead>
+                    <tr style="background-color:#FE980F; color:#ffffff;">
+                        <th align="left">Sản phẩm</th>
+                        <th align="center">Đơn giá</th>
+                        <th align="center">Giảm giá</th>
+                        <th align="center">SL</th>
+                        <th align="right">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order_items %}
+                    <tr style="border-bottom:1px solid #eeeeee;">
+                        <td>
+                            {% if item.product %}
+                            <strong>{{ item.product.name }}</strong><br>
+                            <span style="color:#999999; font-size:12px;">
+                                {{ item.product.category }} / {{ item.product.brand }}
+                                {% if item.product.sale_status == 1 %}(Sale){% else %}(New){% endif %}
+                            </span>
+                            {% else %}
+                                <strong>Sản phẩm không còn tồn tại</strong>
+                            {% endif %}
+                        </td>
+                        <td align="center">{{ item.price }}&#8363;</td>
+                        <td align="center">{{ item.sale }}%</td>
+                        <td align="center">{{ item.quantity }}</td>
+                        <td align="right">{{ item.total_price }}₫;</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- ===== TỔNG KẾT ===== -->
+            <table width="100%" cellpadding="10" cellspacing="0" style="margin-top:15px;">
+                <tr>
+                    <td align="right" style="color:#555555;">
+                        <strong>Tổng số lượng:</strong> {{ cart_count }}
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right" style="font-size:18px; color:#333333;">
+                        <strong>Tổng giá trị đơn hàng:</strong>
+                        <span style="color:#FE980F;">{{ cart_total }}&#8363;</span>
+                    </td>
+                </tr>
+            </table>
+
+            <p style="text-align:center; margin:30px 0;">
+                <a href="http://127.0.0.1:8000/Users/order/{{ order.id }}/"
+                   style="
+                        background-color:#4CAF50;
+                        color:#ffffff;
+                        padding:12px 25px;
+                        text-decoration:none;
+                        border-radius:5px;
+                        display:inline-block;
+                        font-weight:bold;
+                   ">
+                    Xem đơn hàng của bạn
+                </a>
+            </p>
+
+            <hr style="border:none; border-top:1px solid #eeeeee;">
+
+            <p style="color:#999999; font-size:13px; line-height:1.6;">
+                Nếu bạn có bất kỳ thắc mắc nào về đơn hàng, vui lòng liên hệ hotline
+                <strong>1900-xxxx</strong> hoặc trả lời email này để được hỗ trợ.
+            </p>
+
+            <p style="color:#555555;">Chúc bạn một ngày tốt lành!</p>
+
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <div style="background-color:#333333; padding:15px; text-align:center;">
+            <p style="color:#ffffff; margin:0; font-size:14px;">E-Shopper</p>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

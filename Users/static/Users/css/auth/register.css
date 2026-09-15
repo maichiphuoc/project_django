@@ -1,0 +1,63 @@
+.register-wrapper {
+    max-width: 380px;        
+    margin: 10px auto;       
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+    padding: 28px;          
+}
+
+.register-wrapper h2 {
+    text-align: center;
+    color: #333;
+    margin: 0 0 20px;      
+    font-size: 22px;         
+}
+
+.register-wrapper form > div {
+    margin-bottom: 14px;    
+}
+
+.register-wrapper label {
+    display: block;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 5px;
+    font-size: 13px;         
+}
+
+.register-wrapper input[type="text"],
+.register-wrapper input[type="email"],
+.register-wrapper input[type="password"],
+.register-wrapper input[type="file"],
+.register-wrapper select {
+    width: 100%;
+    padding: 7px 10px;      
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;         /* giảm từ 15px */
+    background: #fafafa;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.register-wrapper input:focus,
+.register-wrapper select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);  /* giảm nhẹ viền focus */
+    background: #fff;
+}
+
+.register-wrapper button[type="submit"] {
+    width: 100%;
+    padding: 11px;           /* giảm từ 14px */
+    margin-top: 8px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    font-size: 15px;         /* giảm từ 16px */
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+}

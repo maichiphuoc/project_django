@@ -1,0 +1,72 @@
+.login-wrapper {
+    max-width: 340px;        /* login ít field nên hẹp hơn register chút */
+    margin: 60px auto;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+    padding: 32px;
+}
+
+.login-wrapper h2 {
+    text-align: center;
+    color: #333;
+    margin: 0 0 22px;
+    font-size: 24px;
+}
+
+.login-wrapper form > div {
+    margin-bottom: 14px;
+}
+
+.login-wrapper input[type="text"],
+.login-wrapper input[type="password"] {
+    width: 100%;
+    padding: 11px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fafafa;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.login-wrapper input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+    background: #fff;
+}
+
+.login-wrapper button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.login-wrapper button[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.login-wrapper button[type="submit"]:active {
+    transform: translateY(0);
+}
+
+/* non_field_errors (sai username/password) */
+.login-wrapper form > ul {
+    color: #e74c3c;
+    background: #fdecea;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    padding: 12px 15px 12px 30px;
+    font-size: 14px;
+    margin: 0 0 14px;
+    list-style: disc;
+}

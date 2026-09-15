@@ -101,5 +101,71 @@ class CartItem(models.Model):
     def __str__(self):
         return f'{self.product.name} - {self.quantity}'
 
+class Order_history(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='order_histories')
+
+    name = models.CharField(
+        max_length=255
+    )
+
+    email = models.EmailField()
+
+    phone = models.CharField(max_length=20)
+
+    total_price = models.DecimalField(max_digits=12,decimal_places=2,default=0)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'Order_history'
+
+    def __str__(self):
+        return f"Order #{self.id} - {self.user.username}"
+
+class OrderItem(models.Model):
+
+    order = models.ForeignKey(
+        Order_history,
+        on_delete=models.CASCADE,
+        related_name='items'
+    )
+
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    sale = models.IntegerField(
+        default=0
+    )
+
+    quantity = models.PositiveIntegerField(
+        default=1
+    )
+    @property
+    def total_price(self):
+
+        item_total = self.price * self.quantity
+
+        discount = (
+            item_total * self.sale / 100
+        )
+
+        return item_total - discount
+
+    def __str__(self):
+
+        if self.product:
+            return f'{self.product.name} - {self.quantity}'
+
+        return f'Order #{self.order.id} - Product deleted'
+
 
 # Create your models here.

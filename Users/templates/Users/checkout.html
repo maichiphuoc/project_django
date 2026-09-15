@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+
+{% block css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'Users/css/checkout.css' %}">
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="checkout-nav">
+        <span>Home</span>
+        <span class="inactive">Check out</span>
+    </div>
+
+    <!-- Thông báo -->
+    <div class="checkout-notice">
+        Please use Register And Checkout to easily get access to your order history, or use Checkout as Guest
+    </div>
+
+   <form
+    id="checkout-form" method="POST" action="" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="checkout-grid">
+
+            {% if not user.is_authenticated %}
+            <div class="checkout-col">
+                <h3>Register</h3>
+
+                <div class="form-row">
+                    <input type="text" name="username" placeholder="User Name*">
+                    {% if form.username.errors %}
+                        <div class="error">
+                            {{ form.username.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-row">
+                    <input type="email" name="email" placeholder="Email*">
+                    {% if form.email.errors %}
+                        <div class="error">
+                            {{ form.email.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-row">
+                    <input type="password" name="password" placeholder="Password*">
+                </div>
+
+                <div class="form-row">
+                    <input type="password" name="confirm_password" placeholder="Confirm Password*">
+                    {% if form.confirm_password.errors %}
+                        <div class="error">
+                            {{ form.confirm_password.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-row">
+                    <input type="file" name="avatar" accept="image/*">
+                </div>
+
+                <div class="form-row">
+                    <input type="text" name="first_name" placeholder="First Name*">
+                </div>
+
+                <div class="form-row">
+                    <input type="text" name="last_name" placeholder="Last Name*">
+                </div>
+
+                <div class="form-row">
+                    <select name="id_country">
+                        <option value="">-- Select Country --</option>
+
+                        {% for country in form.fields.id_country.queryset %}
+                            <option value="{{ country.id }}">
+                                {{ country.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" name="action" value="register" class="btn-checkout">Register </button>
+            </div>
+            {% endif %}
+
+            <!-- ===== CỘT 2: SHOPPER INFORMATION ===== -->
+            <div class="checkout-col">
+            <h3>Shopper Information</h3>
+
+            <div class="form-row">
+                <input
+                    type="text"
+                    name="shopper_name"
+                    placeholder="Name"
+                >
+            </div>
+
+            <div class="form-row">
+                <input
+                    type="email"
+                    name="shopper_email"
+                    placeholder="Email"
+                >
+            </div>
+
+            <div class="form-row">
+                <input
+                    type="text"
+                    name="shopper_phone"
+                    placeholder="Phone Number"
+                >
+            </div>
+
+            <button
+                type="button"
+                id="order-btn"
+                class="btn-checkout">
+                Order
+            </button>
+        </div>
+
+            <!-- ===== CỘT 3: BILL TO ===== -->
+            <div class="checkout-col">
+                <h3>Bill To</h3>
+
+                <div class="form-row">
+                    <input type="text" name="bill_company" placeholder="Company Name">
+                </div>
+                <div class="form-row">
+                    <input type="email" name="bill_email" placeholder="Email*">
+                </div>
+                <div class="form-row">
+                    <input type="text" name="bill_title" placeholder="Title">
+                </div>
+                <div class="form-row">
+                    <input type="text" name="bill_first_name" placeholder="First Name*">
+                </div>
+                <div class="form-row">
+                    <input type="text" name="bill_last_name" placeholder="Last Name*">
+                </div>
+                <div class="form-row">
+                    <input type="text" name="bill_address" placeholder="Address *">
+                </div>
+            </div>
+
+            <!-- ===== CỘT 4: SHIPPING ORDER ===== -->
+            <div class="checkout-col">
+                <h3>Shipping Order</h3>
+
+                <div class="form-row">
+                    <textarea name="shipping_notes"
+                              placeholder="Notes about your order, Special Notes for Delivery"></textarea>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="checkbox" name="ship_to_bill" id="ship_to_bill">
+                    <label for="ship_to_bill" style="display:inline; margin:0;">Shipping to bill address</label>
+                </div>
+            </div>
+
+        </div>
+    </form>
+    {% if user.is_authenticated %}
+    <div class="info-cart">
+        <h2>Giỏ hàng của tôi</h2>
+        {% if cart_items %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Image</th>
+                    <th>Price</th>
+                    <th>sale</th>
+                    <th>Condition</th>
+                    <th>Category</th>
+                    <th>Brand</th>
+                    <th>Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>{{item.product.id}}</td>
+                    <td>{{item.product.name}}</td>
+                    <td>
+                        {% if item.product.image_list %}
+                        <img src="/media/products/{{item.product.image_list.0}}" width="100" alt="">
+                        {% else %}
+                        <p>Không có ảnh</p>
+                        {% endif %}
+                    </td>
+                    <td>{{item.product.price}}</td>
+                    <td>{{item.product.sale}}</td>
+                    <td>
+                        {% if item.product.sale_status == 1 %}
+                            Sale 
+                        {% else %}
+                            NEW
+                        {% endif %}
+                    </td>
+                    <td>{{item.product.category}}</td>
+                    <td>{{item.product.brand}}</td>
+                    <td>
+                        <span id="quantity-{{ item.product.id }}">
+                            {{ item.quantity }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Giỏ hàng đang trống</p>
+        {% endif %}
+        <div class="count">
+            <span>Tổng số lượng: </span>
+            <span id="total-count">
+                {{cart_count}}
+            </span>
+        </div>
+        <div class="Price">
+            <span>Tổng giá: </span>
+            <span id="total-price">
+                {{cart_total}}
+            </span>
+        </div>
+
+    </div>
+    {% else %}
+    <h2>Giỏ hàng đang trống</h2>
+    {% endif %}
+
+
+{% endblock %}
+{% block order_productAjax %}
+<script src="{% static 'Users/js/order.js' %}"></script>
+{% endblock %}
