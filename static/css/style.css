@@ -11,17 +11,20 @@
 
 .header {
     width: 100%;
-    height: 100px;
+    /* height: 100px; */
     border-bottom: 1px solid #eee;
 }
 
 .header-container {
     width: 1090px;
-    height: 100%;
+    height: 100px;
     margin: 0 auto;
+    margin-top: 30px;
 
     display: flex;
     align-items: center;
+
+    border-bottom: 1px solid #eee;
 }
 
 .logo {
@@ -62,6 +65,132 @@
 .menu a:hover {
     color: yellow;
 }
+
+.navbar {
+    width: 100%;
+    height: 60px;
+    border-bottom: 1px solid #eee;  /* đường kẻ dưới cùng */
+}
+
+.navbar-container {
+    width: 1090px;
+    height: 100%;
+    margin: 0 auto;
+
+    display: flex;
+    align-items: center;
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 35px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-menu > li > a {
+    text-decoration: none;
+    font-size: 16px;
+    color: #666;
+    padding: 8px 0;
+    display: block;
+    transition: 0.2s;
+}
+
+.nav-menu > li > a:hover,
+.nav-menu > li > a.active {
+    color: #f0a830;
+}
+
+.caret {
+    font-size: 12px;
+    margin-left: 3px;
+}
+
+/* Dropdown */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+
+    background: #fff;
+    min-width: 160px;
+    list-style: none;
+    margin: 0;
+    padding: 10px 0;
+
+    border: 1px solid #eee;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.2s;
+    z-index: 100;
+}
+
+.dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+}
+
+.dropdown-menu li a {
+    display: block;
+    padding: 8px 20px;
+    color: #666;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.dropdown-menu li a:hover {
+    color: #f0a830;
+    background: #f8f8f8;
+}
+
+/* Search box */
+.search-box {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}
+
+.search-box input {
+    width: 170px;
+    height: 35px;
+    padding: 0 12px;
+
+    border: none;
+    background: #f0f0e9;
+    font-size: 14px;
+    color: #666;
+
+    outline: none;
+}
+
+.search-box input::placeholder {
+    color: #999;
+}
+
+.search-box button {
+    width: 40px;
+    height: 35px;
+
+    border: none;
+    background: #f0f0e9;
+    cursor: pointer;
+    font-size: 14px;
+    color: #999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 
 
 /* =========================
